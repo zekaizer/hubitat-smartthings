@@ -4,7 +4,7 @@
  * Parent device driver that discovers SmartThings devices and creates
  * Generic Component Switch child devices bridged via SmartThings Cloud API.
  *
- * Version: 0.2.1
+ * Version: 0.2.2
  */
 metadata {
     definition(name: "SmartThings Bridge", namespace: "zekaizer", author: "luke.lee") {
@@ -14,6 +14,8 @@ metadata {
 
         command "discoverDevices"
         command "removeAllDevices"
+        command "checkChildren"
+        command "testSwitch", [[name: "cmd", type: "ENUM", constraints: ["on", "off"]]]
     }
 
     preferences {
@@ -122,6 +124,28 @@ void removeAllDevices() {
         deleteChildDevice(it.deviceNetworkId)
     }
     log.info "All child devices removed"
+}
+
+// --- Diagnostics ---
+
+void checkChildren() {
+    log.info "Parent DNI: ${device.deviceNetworkId}, Parent ID: ${device.id}"
+    getChildDevices().each { child ->
+        log.info "Child: id=${child.id}, dni=${child.deviceNetworkId}, label=${child.label}, name=${child.name}, parent=${child.getParent()}"
+    }
+    if (!getChildDevices()) log.warn "No child devices found"
+}
+
+void testSwitch(String cmd) {
+    def children = getChildDevices()
+    if (!children) {
+        log.error "No child devices"
+        return
+    }
+    def child = children[0]
+    String stDeviceId = extractStDeviceId(child)
+    log.info "testSwitch: cmd=${cmd}, child=${child.label}, stDeviceId=${stDeviceId}"
+    sendSTCommand(stDeviceId, cmd)
 }
 
 // --- Component Methods (called by Generic Component Switch children) ---
