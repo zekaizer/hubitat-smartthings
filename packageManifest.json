@@ -1,7 +1,7 @@
 {
   "packageName": "SmartThings Bridge",
   "author": "luke.lee",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "minimumHEVersion": "2.3.0",
   "dateReleased": "2026-03-30",
   "drivers": [

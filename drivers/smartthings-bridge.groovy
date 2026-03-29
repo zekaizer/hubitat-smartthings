@@ -4,7 +4,7 @@
  * Parent device driver that discovers SmartThings devices and creates
  * Generic Component Switch child devices bridged via SmartThings Cloud API.
  *
- * Version: 0.2.2
+ * Version: 0.2.3
  */
 metadata {
     definition(name: "SmartThings Bridge", namespace: "zekaizer", author: "luke.lee") {
@@ -151,14 +151,14 @@ void testSwitch(String cmd) {
 // --- Component Methods (called by Generic Component Switch children) ---
 
 void componentOn(child) {
-    if (settings.logEnable) log.debug "componentOn: ${child.label}"
-    child.parse([[name: "switch", value: "on", descriptionText: "${child.displayName} is on"]])
+    if (settings.logEnable) log.debug "componentOn: ${child.displayName}"
+    child.sendEvent(name: "switch", value: "on", descriptionText: "${child.displayName} is on")
     sendSTCommand(extractStDeviceId(child), "on")
 }
 
 void componentOff(child) {
-    if (settings.logEnable) log.debug "componentOff: ${child.label}"
-    child.parse([[name: "switch", value: "off", descriptionText: "${child.displayName} is off"]])
+    if (settings.logEnable) log.debug "componentOff: ${child.displayName}"
+    child.sendEvent(name: "switch", value: "off", descriptionText: "${child.displayName} is off")
     sendSTCommand(extractStDeviceId(child), "off")
 }
 
@@ -202,8 +202,8 @@ void handleRefresh(resp, Map data) {
         Map json = new groovy.json.JsonSlurper().parseText(resp.getData())
         String switchVal = json?.components?.main?.switch?.switch?.value
         if (switchVal && child.currentValue("switch") != switchVal) {
-            child.parse([[name: "switch", value: switchVal, descriptionText: "${child.displayName} is ${switchVal}"]])
-            if (settings.logEnable) log.debug "Updated ${child.label}: switch=${switchVal}"
+            child.sendEvent(name: "switch", value: switchVal, descriptionText: "${child.displayName} is ${switchVal}")
+            if (settings.logEnable) log.debug "Updated ${child.displayName}: switch=${switchVal}"
         }
     } catch (e) {
         log.error "Parse ${child.label}: ${e.message}"
