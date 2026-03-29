@@ -4,7 +4,7 @@
  * Parent device driver that discovers SmartThings devices and creates
  * Generic Component Switch child devices bridged via SmartThings Cloud API.
  *
- * Version: 0.2.0
+ * Version: 0.2.1
  */
 metadata {
     definition(name: "SmartThings Bridge", namespace: "zekaizer", author: "luke.lee") {
@@ -105,6 +105,7 @@ private fetchChild(String stDeviceId, String label, String type) {
         try {
             child = addChildDevice("hubitat", "Generic Component ${type}", dni, [
                 name: label,
+                label: label,
                 isComponent: false
             ])
             if (settings.logEnable) log.debug "Created child: ${label}"
@@ -198,16 +199,19 @@ private void sendSTCommand(String stDeviceId, String cmd) {
 
     Map params = [
         uri: "https://api.smartthings.com/v1/devices/${stDeviceId}/commands",
-        headers: [
-            "Authorization": "Bearer ${settings.stToken}",
-            "Content-Type": "application/json"
-        ],
-        body: body,
+        headers: ["Authorization": "Bearer ${settings.stToken}"],
+        requestContentType: "application/json",
         contentType: "application/json",
+        body: body,
         timeout: 10
     ]
 
-    asynchttpPost("handleCommand", params, [stDeviceId: stDeviceId, cmd: cmd])
+    try {
+        asynchttpPost("handleCommand", params, [stDeviceId: stDeviceId, cmd: cmd])
+        if (settings.logEnable) log.debug "Sent command '${cmd}' to ${stDeviceId}"
+    } catch (e) {
+        log.error "Failed to send command '${cmd}': ${e.message}"
+    }
 }
 
 void handleCommand(resp, Map data) {
