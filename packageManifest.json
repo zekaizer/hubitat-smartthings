@@ -1,0 +1,16 @@
+{
+  "packageName": "SmartThings Bridge",
+  "author": "luke.lee",
+  "version": "0.1.0",
+  "minimumHEVersion": "2.3.0",
+  "dateReleased": "2026-03-30",
+  "drivers": [
+    {
+      "id": "b9f3e2a1-7c84-4d1e-a5b6-3f8c9d0e1a2b",
+      "name": "SmartThings Bridge Light",
+      "namespace": "zekaizer",
+      "location": "https://raw.githubusercontent.com/zekaizer/hubitat-smartthings/main/drivers/smartthings-bridge-light.groovy",
+      "required": true
+    }
+  ]
+}
